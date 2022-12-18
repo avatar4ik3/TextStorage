@@ -1,0 +1,56 @@
+services:
+  database:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - default
+    expose:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+      - ./sql/startup.sql:/docker-entrypoint-initdb.d/startup.sql
+    container_name: ${POSTGRES_NAME}
+    
+  seq:
+    image: datalust/seq:latest
+    restart: always
+    environment:
+      - BASE_URL=https://seq.textstorage.com
+    networks:
+      - default
+    env_file:
+      - .env
+    ports:
+      - "${SEQ_PORT}:80"
+    container_name: ${SEQ_NAME} 
+
+  server:
+    build:
+      context: .
+      dockerfile: /api/Dockerfile
+    env_file: .env
+    networks:
+      - default
+    depends_on:
+      - database
+      - seq
+    ports:
+    - "${APP_PORT}:${APP_PORT}"
+
+  
+  client:
+    build:
+      context: .
+      dockerfile: /client/Dockerfile
+    networks:
+      - default
+    env_file: .env
+    depends_on:
+      - server
+    ports:
+      - "${CLIENT_PORT}:80"
+    
+volumes:
+  data:
