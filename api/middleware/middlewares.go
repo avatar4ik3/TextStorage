@@ -5,14 +5,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func ErrorHandler(logger *logrus.Logger) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Next()
-		for _, ginErr := range c.Errors {
+func NewErrorHandler(logger *logrus.Logger) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Next()
+		for _, ginErr := range ctx.Errors {
 			logger.WithError(ginErr.Err).Error(ginErr.Err.Error())
 		}
-		c.JSON(int(c.Errors.Last().Meta.(int)), gin.H{
-			"errors": c.Errors.Last().Err.Error(),
-		} /* error payload */)
+		if ctx.Errors.Last() != nil {
+			ctx.JSON(-1, gin.H{
+				"errors": ctx.Errors.Last().Err.Error(),
+			})
+		}
 	}
 }

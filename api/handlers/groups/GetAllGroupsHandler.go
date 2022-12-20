@@ -30,12 +30,14 @@ func (this *GetAllGroupsHandler) Handle() *handlers.Handler {
 			data := handlers.TryWithErrorG(func() ([]models.Group, error) {
 				return this.repo.AllGroups()
 			}, http.StatusInternalServerError, ctx)
-			ctx.JSON(
-				http.StatusOK,
-				gin.H{
-					"groups": data,
-				},
-			)
+			if len(ctx.Errors) == 0 {
+				ctx.JSON(
+					http.StatusOK,
+					gin.H{
+						"groups": data,
+					},
+				)
+			}
 		},
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	handlers "avatar4ik3/TextStorage/api/handlers"
 	textHandlers "avatar4ik3/TextStorage/api/handlers/text"
+	"avatar4ik3/TextStorage/api/middleware"
 	"avatar4ik3/TextStorage/api/models"
 	"fmt"
 	"os"
@@ -11,7 +12,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/nullseed/logruseq"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 )
@@ -24,69 +24,95 @@ func AsRoute(f any) any {
 	)
 }
 
-func CreateEngineWithoutLogger(routes ...handlers.Route) *gin.Engine {
-	router := gin.Default()
-	router.Use(cors.Default())
-	for _, r := range routes {
-		handler := r.Handle()
-		router.Handle(handler.Method, handler.Path, handler.Func)
+func AsMiddleware(f any) any {
+	return fx.Annotate(
+		f,
+		fx.ResultTags(`group:"middleware"`),
+	)
+}
+
+func RegisterRoutes(r *gin.Engine, routes []handlers.Route) {
+	for _, route := range routes {
+		handler := route.Handle()
+		r.Handle(handler.Method, handler.Path, handler.Func)
 	}
-	return router
+}
+
+func RegisterMiddlewares(r *gin.Engine, mws []gin.HandlerFunc) {
+	fmt.Printf("using mws %d \n", len(mws))
+	for _, mw := range mws {
+		r.Use(mw)
+	}
 }
 
 func CreateLogger() *logrus.Logger {
 	log := logrus.New()
 	log.SetLevel(logrus.DebugLevel)
-	log.AddHook(logruseq.NewSeqHook("http://" + os.Getenv("SEQ_NAME") + ":" + os.Getenv("SEQ_PORT")))
+	// log.AddHook(logruseq.NewSeqHook(SEQ_connectionString()))
 	log.Error("Logger Created!")
 	return log
 }
 
-func CreateStore(logger *logrus.Logger) *models.Store {
-	s, err := models.NewStore(
-		"postgresql://" + os.Getenv("POSTGRES_NAME") + ":" +
-			os.Getenv("POSTGRES_PORT") + "/" +
-			os.Getenv("POSTGRES_DB") +
-			"?user=" + os.Getenv("POSTGRES_USER") +
-			"&password=" + os.Getenv("POSTGRES_PASSWORD") +
-			"&sslmode=disable")
-	if err != nil {
-		panic(err)
-	}
-	return s
+func SEQ_connectionString() string {
+	return "http://" + os.Getenv("SEQ_NAME") + ":" + os.Getenv("SEQ_PORT")
+}
+
+func PSG_connectionString() string {
+	return "postgresql://" + os.Getenv("POSTGRES_NAME") + ":" +
+		os.Getenv("POSTGRES_PORT") + "/" +
+		os.Getenv("POSTGRES_DB") +
+		"?user=" + os.Getenv("POSTGRES_USER") +
+		"&password=" + os.Getenv("POSTGRES_PASSWORD") +
+		"&sslmode=disable"
 }
 
 func RunWithPort(r *gin.Engine, logger *logrus.Logger) {
-	logger.Error("RRRRRRUN")
 	r.Run(":" + os.Getenv("APP_PORT"))
 }
 
-func main() {
+func LoadEnv(logger *logrus.Logger) {
 	if runtime.GOOS == "windows" {
-		fmt.Println("parsing .env file")
-
+		logger.Info("parsing .env file")
 		if err := godotenv.Load("../.debug.env"); err != nil {
-			fmt.Println(err.Error())
-
+			logger.Error(err.Error())
 			os.Exit(1)
 		}
 
 	}
 	if runtime.GOOS != "windows" {
-		fmt.Println("using real env variables")
+		logger.Info("using real env variables")
 	}
+}
+
+func CreateEngine(mws []gin.HandlerFunc) *gin.Engine {
+	r := gin.Default()
+	//todo разобратька как регистрировать мвшки после сборки fx'a
+	RegisterMiddlewares(r, mws)
+	return r
+}
+
+func CreateStore() *models.Store {
+	store, err := models.NewStore(PSG_connectionString())
+	if err != nil {
+		panic(err.Error())
+	}
+	return store
+}
+
+func main() {
 
 	fx.
 		New(
 			fx.Provide(
 				CreateLogger,
 				CreateStore,
+
 				models.NewRepository,
 
 				fx.Annotate(
-					CreateEngineWithoutLogger,
-					fx.ParamTags(`group:"routes"`),
+					CreateEngine,
 					fx.ResultTags(`name:"engine"`),
+					fx.ParamTags(`group:"middleware"`),
 				),
 
 				AsRoute(handlers.NewEchoHandler),
@@ -95,8 +121,16 @@ func main() {
 				AsRoute(textHandlers.NewGetAllTextsHandler),
 				AsRoute(textHandlers.NewRemoveTextHandler),
 				AsRoute(textHandlers.NewRemoveTextByIdHandler),
+
+				AsMiddleware(cors.Default),
+				AsMiddleware(middleware.NewErrorHandler),
 			),
 			fx.Invoke(
+				LoadEnv,
+				fx.Annotate(
+					RegisterRoutes,
+					fx.ParamTags(`name:"engine"`, `group:"routes"`),
+				),
 				fx.Annotate(
 					RunWithPort,
 					fx.ParamTags(`name:"engine"`),

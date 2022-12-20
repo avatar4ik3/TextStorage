@@ -29,10 +29,12 @@ func (this *GetAllTextsHandler) Handle() *handlers.Handler {
 			res := handlers.TryWithErrorG(func() ([]models.Text, error) {
 				return this.repo.AllTexts()
 			}, http.StatusInternalServerError, ctx)
-			ctx.JSON(
-				http.StatusOK,
-				res,
-			)
+			if len(ctx.Errors) == 0 {
+				ctx.JSON(
+					http.StatusOK,
+					res,
+				)
+			}
 		},
 	}
 

@@ -42,12 +42,14 @@ func (this *RemoveTextByIdHandler) Handle() *handlers.Handler {
 				http.StatusBadRequest,
 				ctx,
 			)
-			ctx.JSON(
-				http.StatusOK,
-				gin.H{
-					"succeed": true,
-				},
-			)
+			if len(ctx.Errors) == 0 {
+				ctx.JSON(
+					http.StatusOK,
+					gin.H{
+						"succeed": true,
+					},
+				)
+			}
 		},
 	}
 }

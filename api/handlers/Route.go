@@ -16,7 +16,7 @@ type Route interface {
 func TryWithErrorG[T any](f func() (T, error), status int, ctx *gin.Context) T {
 	res, err := f()
 	if err != nil {
-		ctx.Errors = append(ctx.Errors, &gin.Error{Err: err, Meta: status})
+		ctx.AbortWithError(status, err)
 	}
 	return res
 }
@@ -24,6 +24,6 @@ func TryWithErrorG[T any](f func() (T, error), status int, ctx *gin.Context) T {
 func TryWithError(f func() error, status int, ctx *gin.Context) {
 	err := f()
 	if err != nil {
-		ctx.Errors = append(ctx.Errors, &gin.Error{Err: err, Meta: status})
+		ctx.AbortWithError(status, err)
 	}
 }

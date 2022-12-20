@@ -13,7 +13,7 @@ func NewRepository(store *Store) *Repository {
 }
 
 func (this *Repository) AddText(value string, description string) (*Text, error) {
-	m := &Text{}
+	m := &Text{Value: value, Description: description}
 	return m, this.store.db.QueryRow("INSERT INTO texts (value,description) VALUES ($1,$2) RETURNING id", value, description).Scan(&m.Id)
 }
 
@@ -27,7 +27,7 @@ func (this *Repository) RemoveText(id uint64) error {
 
 func (this *Repository) GetText(id uint64) (*Text, error) {
 	m := &Text{Id: id}
-	return m, this.store.db.QueryRow("Select 1 From texts where id = ($1)", id).Scan(&m.Id, &m.Value)
+	return m, this.store.db.QueryRow("Select 1 From texts where id = ($1)", id).Scan(&m.Id, &m.Description, &m.Value)
 }
 
 func getAll[T any](s *Store, table string, apply func(row *sql.Rows) (T, error)) ([]T, error) {
@@ -46,7 +46,7 @@ func getAll[T any](s *Store, table string, apply func(row *sql.Rows) (T, error))
 func (this *Repository) AllTexts() ([]Text, error) {
 	return getAll(this.store, "texts", func(row *sql.Rows) (Text, error) {
 		m := Text{}
-		return m, row.Scan(&m.Id, &m.Value)
+		return m, row.Scan(&m.Id, &m.Description, &m.Value)
 	})
 }
 

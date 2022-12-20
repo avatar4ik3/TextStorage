@@ -4,6 +4,7 @@ import { React, useState } from "react";
 
 function App() {
   const [text, setText] = useState("input your text here");
+  const [desc, setDesc] = useState("and description here");
   const [response, setResponse] = useState("");
   const [data, setData] = useState();
 
@@ -30,6 +31,14 @@ function App() {
           setText(e.target.value);
         }}
       ></input>
+      <input
+        defaultValue={desc}
+        inputMode="text"
+        onChange={(e) => {
+          e.preventDefault();
+          setDesc(e.target.value);
+        }}
+      ></input>
       <button
         title="send"
         onClick={async (e) => {
@@ -38,6 +47,7 @@ function App() {
               endpoint,
               {
                 value: text,
+                description: desc,
               },
               {
                 headers: {

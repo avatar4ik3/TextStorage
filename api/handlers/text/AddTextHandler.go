@@ -40,17 +40,16 @@ func (this *AddTextHandler) Handle() *handlers.Handler {
 				http.StatusBadRequest,
 				ctx,
 			)
-
-			text := &models.Text{
-				Value: req.Value,
-			}
-			text = handlers.TryWithErrorG(func() (*models.Text, error) {
+			this.logger.Info(req)
+			text := handlers.TryWithErrorG(func() (*models.Text, error) {
 				return this.repo.AddText(req.Value, req.Description)
 			}, http.StatusInternalServerError, ctx)
-			ctx.JSON(
-				http.StatusOK,
-				text,
-			)
+			if len(ctx.Errors) == 0 {
+				ctx.JSON(
+					http.StatusCreated,
+					text,
+				)
+			}
 		},
 	}
 }

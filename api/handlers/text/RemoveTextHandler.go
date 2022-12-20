@@ -45,10 +45,12 @@ func (this *RemoveTextHandler) Handle() *handlers.Handler {
 					return this.repo.RemoveText(id)
 				}, http.StatusInternalServerError, ctx)
 			}
-			ctx.JSON(
-				http.StatusOK,
-				responses,
-			)
+			if len(ctx.Errors) == 0 {
+				ctx.JSON(
+					http.StatusOK,
+					responses,
+				)
+			}
 		},
 	}
 
