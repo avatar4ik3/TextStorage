@@ -1,6 +1,7 @@
-package handlers
+package textHandlers
 
 import (
+	"avatar4ik3/TextStorage/api/handlers"
 	models "avatar4ik3/TextStorage/api/models"
 	"net/http"
 
@@ -14,7 +15,8 @@ type AddTextHandler struct {
 }
 
 type AddTextRequest struct {
-	Value string `json:"value"`
+	Description string `json:"description"`
+	Value       string `json:"value"`
 }
 
 func NewAddTextHandler(logger *logrus.Logger, repo *models.Repository) *AddTextHandler {
@@ -24,27 +26,27 @@ func NewAddTextHandler(logger *logrus.Logger, repo *models.Repository) *AddTextH
 	}
 }
 
-func (this *AddTextHandler) Handle() *Handler {
-	return &Handler{
+func (this *AddTextHandler) Handle() *handlers.Handler {
+	return &handlers.Handler{
 		Path:   "/texts",
 		Method: http.MethodPost,
 		Func: func(ctx *gin.Context) {
-			this.logger.Info("Recieved add text!")
 
-			req := &AddTextRequest{}
-			if err := ctx.BindJSON(&req); err != nil {
-				ctx.JSON(
-					http.StatusBadRequest,
-					gin.H{
-						"error": err,
-					},
-				)
-			}
-			this.logger.Info(req.Value)
+			req := handlers.TryWithErrorG(
+				func() (AddTextRequest, error) {
+					req := AddTextRequest{}
+					return req, ctx.BindJSON(&req)
+				},
+				http.StatusBadRequest,
+				ctx,
+			)
+
 			text := &models.Text{
 				Value: req.Value,
 			}
-			this.repo.AddText(text)
+			text = handlers.TryWithErrorG(func() (*models.Text, error) {
+				return this.repo.AddText(req.Value, req.Description)
+			}, http.StatusInternalServerError, ctx)
 			ctx.JSON(
 				http.StatusOK,
 				text,

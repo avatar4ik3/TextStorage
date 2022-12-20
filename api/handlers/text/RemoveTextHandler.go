@@ -1,6 +1,7 @@
-package handlers
+package textHandlers
 
 import (
+	"avatar4ik3/TextStorage/api/handlers"
 	models "avatar4ik3/TextStorage/api/models"
 	"net/http"
 
@@ -28,28 +29,21 @@ func NewRemoveTextHandler(logger *logrus.Logger, repo *models.Repository) *Remov
 		repo:   repo,
 	}
 }
-func (this *RemoveTextHandler) Handle() *Handler {
-	return &Handler{
+func (this *RemoveTextHandler) Handle() *handlers.Handler {
+	return &handlers.Handler{
 		Path:   "/texts",
 		Method: http.MethodDelete,
 		Func: func(ctx *gin.Context) {
-			req := &RemoveRequest{}
-			this.logger.Info("Recieved remove texts!")
-			if err := ctx.BindJSON(&req); err != nil {
-				ctx.JSON(
-					http.StatusBadRequest,
-					gin.H{
-						"error": err.Error(),
-					},
-				)
-			}
+			req := handlers.TryWithErrorG(func() (RemoveRequest, error) {
+				req := RemoveRequest{}
+				return req, ctx.BindJSON(&req)
+			}, http.StatusBadRequest, ctx)
+
 			responses := []RemoveResponse{}
 			for _, id := range req.Ids {
-				r := &RemoveResponse{Id: id}
-				if err := this.repo.RemoveText(id); err != nil {
-					r.Error = err.Error()
-				}
-				responses = append(responses, *r)
+				handlers.TryWithError(func() error {
+					return this.repo.RemoveText(id)
+				}, http.StatusInternalServerError, ctx)
 			}
 			ctx.JSON(
 				http.StatusOK,

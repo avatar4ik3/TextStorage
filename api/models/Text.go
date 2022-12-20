@@ -1,6 +1,7 @@
 package models
 
 type Text struct {
-	Id    uint64 
-	Value string 
+	Id          uint64
+	Description string
+	Value       string
 }

@@ -1,6 +1,7 @@
-package handlers
+package textHandlers
 
 import (
+	"avatar4ik3/TextStorage/api/handlers"
 	models "avatar4ik3/TextStorage/api/models"
 	"net/http"
 
@@ -19,21 +20,15 @@ func NewGetAllTextsHandler(logger *logrus.Logger, repo *models.Repository) *GetA
 		repo:   repo,
 	}
 }
-func (this *GetAllTextsHandler) Handle() *Handler {
-	return &Handler{
+func (this *GetAllTextsHandler) Handle() *handlers.Handler {
+	return &handlers.Handler{
 		Path:   "/texts",
 		Method: http.MethodGet,
 		Func: func(ctx *gin.Context) {
 			this.logger.Info("Recieved get all text!")
-			res, err := this.repo.AllTexts()
-			if err != nil {
-				ctx.JSON(
-					http.StatusBadRequest,
-					gin.H{
-						"error": err,
-					},
-				)
-			}
+			res := handlers.TryWithErrorG(func() ([]models.Text, error) {
+				return this.repo.AllTexts()
+			}, http.StatusInternalServerError, ctx)
 			ctx.JSON(
 				http.StatusOK,
 				res,

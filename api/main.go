@@ -2,6 +2,7 @@ package main
 
 import (
 	handlers "avatar4ik3/TextStorage/api/handlers"
+	textHandlers "avatar4ik3/TextStorage/api/handlers/text"
 	"avatar4ik3/TextStorage/api/models"
 	"fmt"
 	"os"
@@ -77,25 +78,11 @@ func main() {
 
 	fx.
 		New(
-			// fx.WithLogger(
-			// 	fx.Annotate(
-			// 		func(logger *logrus.Logger) fxevent.Logger {
-			// 			zaplogger, _ := zap.NewDevelopment()
-			// 			hook, _ := logrus_zap_hook.NewZapHook(zaplogger)
-			// 			logger.Hooks.Add(hook)
-			// 			return &fxevent.ZapLogger{Logger: zaplogger}
-			// 		},
-			// 		fx.ParamTags(`name:"logger"`),
-			// 	),
-			// ),
 			fx.Provide(
 				CreateLogger,
 				CreateStore,
 				models.NewRepository,
-				// fx.Annotate(
-				// 	CreateLogger,
-				// 	fx.ResultTags(`name:"logger"`),
-				// ),
+
 				fx.Annotate(
 					CreateEngineWithoutLogger,
 					fx.ParamTags(`group:"routes"`),
@@ -104,9 +91,10 @@ func main() {
 
 				AsRoute(handlers.NewEchoHandler),
 				AsRoute(handlers.NewPingPongHandler),
-				AsRoute(handlers.NewAddTextHandler),
-				AsRoute(handlers.NewGetAllTextsHandler),
-				AsRoute(handlers.NewRemoveTextHandler),
+				AsRoute(textHandlers.NewAddTextHandler),
+				AsRoute(textHandlers.NewGetAllTextsHandler),
+				AsRoute(textHandlers.NewRemoveTextHandler),
+				AsRoute(textHandlers.NewRemoveTextByIdHandler),
 			),
 			fx.Invoke(
 				fx.Annotate(
