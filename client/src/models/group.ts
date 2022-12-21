@@ -1,22 +1,22 @@
 export default class Group {
-	private _id: Number
-	public get id(): Number {
-		return this._id
+	private _Id: Number
+	public get Id(): Number {
+		return this._Id
 	}
-	public set id(v: Number) {
-		this._id = v
+	public set Id(v: Number) {
+		this._Id = v
 	}
 
-	private _description: string
-	public get description(): string {
-		return this._description
+	private _Description: string
+	public get Description(): string {
+		return this._Description
 	}
-	public set description(v: string) {
-		this._description = v
+	public set Description(v: string) {
+		this._Description = v
 	}
 
 	constructor(id: Number, description: string) {
-		this._id = id
-		this._description = description
+		this._Id = id
+		this._Description = description
 	}
 }

@@ -4,16 +4,18 @@ import Text from "../../models/text"
 import { PropsWithChildren } from "react"
 import "../preview/preview.css"
 
-const Preview: React.FC<PropsWithChildren<{ object: Text | Group }>> = ({
-	object,
-}) => {
+const Preview: React.FC<{
+	object: Text
+	handler: React.MouseEventHandler<HTMLDivElement>
+	[x: string]: any
+}> = ({ object, handler }) => {
 	return (
-		<div className="preview">
+		<div className="preview" onClick={handler}>
 			<div className="name">
-				<> name : {object.description}</>
+				<> name : {object.Description}</>
 			</div>
-			<div className="description">
-				<> id : {object.id} </>
+			<div className="id">
+				<> id : {object.Id} </>
 			</div>
 		</div>
 	)

@@ -1,7 +1,17 @@
-import React from 'react'
+import React from "react"
+import Text from "../../models/text"
+import "../preview/preview.css"
 
-export default function textViewer() {
-  return (
-    <div>textViewer</div>
-  )
+const TextViewer: React.FC<{ object: Text; [x: string]: any }> = ({
+	object,
+}) => {
+	return (
+		<div className="TextViewer">
+			<div className="textHolder">
+				<> {object.Value}</>
+			</div>
+		</div>
+	)
 }
+
+export default TextViewer

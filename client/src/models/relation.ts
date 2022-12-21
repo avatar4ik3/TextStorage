@@ -1,22 +1,22 @@
 export default class Relation {
-	private _textId: Number
-	public get textId(): Number {
-		return this._textId
+	private _TextId: Number
+	public get TextId(): Number {
+		return this._TextId
 	}
-	public set textId(v: Number) {
-		this._textId = v
+	public set TextId(v: Number) {
+		this._TextId = v
 	}
 
-	private _groupId: Number
-	public get groupId(): Number {
-		return this._groupId
+	private _GroupId: Number
+	public get GroupId(): Number {
+		return this._GroupId
 	}
-	public set groupId(v: Number) {
-		this._groupId = v
+	public set GroupId(v: Number) {
+		this._GroupId = v
 	}
 
 	constructor(text_id: Number, group_id: Number) {
-		this._textId = text_id
-		this._groupId = group_id
+		this._TextId = text_id
+		this._GroupId = group_id
 	}
 }

@@ -1,31 +1,31 @@
 export default class Text {
-	private _id: Number
-	public get id(): Number {
-		return this._id
+	private _Id: Number
+	public get Id(): Number {
+		return this._Id
 	}
-	public set id(v: Number) {
-		this._id = v
-	}
-
-	private _description: string
-	public get description(): string {
-		return this._description
-	}
-	public set description(v: string) {
-		this._description = v
+	public set Id(v: Number) {
+		this._Id = v
 	}
 
-	private _value: string
-	public get value(): string {
-		return this._value
+	private _Description: string
+	public get Description(): string {
+		return this._Description
 	}
-	public set value(v: string) {
-		this._value = v
+	public set Description(v: string) {
+		this._Description = v
+	}
+
+	private _Value: string
+	public get Value(): string {
+		return this._Value
+	}
+	public set Value(v: string) {
+		this._Value = v
 	}
 
 	constructor(id: Number, description: string, value: string) {
-		this._id = id
-		this._value = value
-		this._description = description
+		this._Id = id
+		this._Value = value
+		this._Description = description
 	}
 }

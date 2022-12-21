@@ -7,20 +7,21 @@ import { PropsWithChildren } from "react"
 import { TransitionGroup, CSSTransition } from "react-transition-group"
 
 const PreviewList: React.FC<PropsWithChildren<{
-	values: Array<Text | Group>
-}>> = ({ values }) => {
-	console.log(values)
-	console.log("typeof values : ", typeof values)
-	console.log("is array", Array.isArray(values))
+	values: Array<Text>
+	set: (value: Text) => void
+}>> = ({ values, set }) => {
+	set(values[0])
 	return (
 		<div className="previewList">
-			<TransitionGroup>
-				{values.map((x) => (
-					<CSSTransition key={x.id} classNames="previews" timeout={500}>
-						<Preview object={x}></Preview>
-					</CSSTransition>
-				))}
-			</TransitionGroup>
+			{values.map((x) => {
+				return (
+					<Preview
+						key={x.Id.toString()}
+						object={x}
+						handler={() => set(x)}
+					></Preview>
+				)
+			})}
 		</div>
 	)
 }

@@ -1,14 +1,21 @@
 
 .preview{
-    display: flex;
-    flex-direction:row;
     border:5px;
     border-color: blue;
 }
 
 .previewList{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     border:5px;
     border-color: red;
+}
+.name {
+    font-size: medium;
+    padding: auto;
+}
+
+.id{
+    font-size: medium;
+    padding: auto;
 }
