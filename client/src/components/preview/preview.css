@@ -1,0 +1,14 @@
+
+.preview{
+    display: flex;
+    flex-direction:row;
+    border:5px;
+    border-color: blue;
+}
+
+.previewList{
+    display: flex;
+    flex-direction: row;
+    border:5px;
+    border-color: red;
+}

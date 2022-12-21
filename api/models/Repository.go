@@ -53,7 +53,7 @@ func (this *Repository) AllTexts() ([]Text, error) {
 func (this *Repository) AllGroups() ([]Group, error) {
 	return getAll(this.store, "texts", func(row *sql.Rows) (Group, error) {
 		m := Group{}
-		return m, row.Scan(&m.id, &m.name)
+		return m, row.Scan(&m.id, &m.description)
 	})
 }
 
